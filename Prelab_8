@@ -20,19 +20,19 @@ module top (
   logic [2:0] q;
   logic [2:0] next_q;
   logic [1:0] f;
-  always_ff @(posedge pb[0], posedge pb[1]);
+  always_ff @(posedge pb[0], posedge pb[1])
     if (pb[1])
-      q => 3'b100;
+      q <= 3'b100;
     else 
-      q => next_q;
+      q <= next_q;
   
   logic [7:0] p;
   hc138 decode(.a(q), .e1(1'b0), .e2(1'b0), .e3(1'b1), .y(p));
-  hc151 mux1(.i(8'b00100110), .s(q), .e(1'b1), .z(f[0])); // 5, 2, 1  = 00100110
+  hc151 mux1(.i(8'b00100110), .s(q), .e(1'b1), .z(f[0])); // 5, 2, 1  = 00100110 *when breadboarding, 0 is gnd and 1 is vdd
   hc151 mux2(.i(8'b01110100), .s(q), .e(1'b1), .z(f[1])); // 6, 5, 4, 2 = 01110100
-  assign next_q[0] = ...
-  assign next_q[1] = ...
-  assign next_q[2] = ...
+  assign next_q[0] = ~(p[2] & p[3] & p[4] & p[6]);
+  assign next_q[1] = ~(p[0] & p[4] & p[1] & p[2]);
+  assign next_q[2] = ~(p[7] & p[6] & p[1] & p[2]);
   assign right[2:0] = q[2:0];
   assign left[2:0] = next_q[2:0];
   assign right[7:6] = f;
@@ -40,7 +40,7 @@ endmodule
 
 // Add more modules down here...
 
-// A SystemVerilog implementation of the 74HC138
+// A SystemVerilog implementation of the 74HC138 
 // 3-to-8 decoder with active-low outputs.
 module hc138(input logic e1,e2,e3,
              input logic [2:0]a,
